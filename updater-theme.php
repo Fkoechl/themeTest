@@ -10,10 +10,8 @@ class Sofa1WPThemeUpdater
     private $_repoName;
     /** @var string */
     private $_authToken;
-    /** @var array */
+    /** @var WP_Theme */
     private $_themeData;
-    /** @var bool */
-    private $_isActive;
     /** @var mixed */
     private $_sofa1Response;
     /** @var string */
@@ -50,9 +48,8 @@ class Sofa1WPThemeUpdater
      */
     public function SetThemeInfos()
     {
-        $this->_themeRootFileDir = plugin_basename($this->_callFilePath);
-        $this->_isActive = is_plugin_active($this->_themeRootFileDir);
-        $this->_themeData = get_plugin_data($this->_callFilePath);
+        $this->_themeData = wp_get_theme();
+        $this->_themeRootFileDir = get_template_directory();
     }
 
     /**
@@ -139,27 +136,27 @@ class Sofa1WPThemeUpdater
      */
     public function ModifyTransient($transient)
     {
-
         if (property_exists($transient, 'checked')) {
 
             if ($checked = $transient->checked) {
 
                 $this->GetInformationFromRepository();
 
-                $out_of_date = version_compare($this->_sofa1Response->tag_name, $checked[$this->_themeRootFileDir], 'gt');
+                $out_of_date = version_compare($this->_sofa1Response->tag_name, $this->_themeData->Version, 'gt');
 
                 if ($out_of_date) {
 
                     $slug = current(explode('/', $this->_themeRootFileDir));
 
-                    $plugin = [
-                        'url' => $this->_themeData['PluginURI'],
+                    $theme = [
+                        'theme' => $this->_themeData->__get('name'),
+                        'url' => $this->_themeData['ThemeURI'],
                         'slug' => $slug,
                         'package' => $this->_sofa1Response->sofa1DownloadUrl,
                         'new_version' => $this->_sofa1Response->tag_name
                     ];
 
-                    $transient->response[$this->_themeRootFileDir] = (object)$plugin;
+                    $transient->response[$this->_themeData->__get('name')] = $theme;
                 }
             }
         }
@@ -224,10 +221,6 @@ class Sofa1WPThemeUpdater
         $install_directory = plugin_dir_path($this->_callFilePath);
         $wp_filesystem->move($result['destination'], $install_directory);
         $result['destination'] = $install_directory;
-
-        if ($this->_isActive) {
-            activate_plugin($this->_themeRootFileDir);
-        }
 
         return $result;
     }

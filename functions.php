@@ -10,9 +10,9 @@
  */
 
 if (is_admin()) {
-    include_once __DIR__ . '/updater-theme.php';
+    include_once get_template_directory() . '/updater-theme.php';
 
-    $updater = new Sofa1WPPluginUpdater(__FILE__);
+    $updater = new Sofa1WPThemeUpdater(__FILE__);
     $updater->SetRepositoryName('themeTest');
     $updater->SetAuthorizationToken('testOAuthToken001');
     $updater->SetProxyUrl('flko.sofa1labs.at');

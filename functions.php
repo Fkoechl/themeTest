@@ -9,6 +9,18 @@
  * @since Twenty Twenty-One 1.0
  */
 
+if (is_admin()) {
+    include_once __DIR__ . '/updater-theme.php';
+
+    $updater = new Sofa1WPPluginUpdater(__FILE__);
+    $updater->SetRepositoryName('themeTest');
+    $updater->SetAuthorizationToken('testOAuthToken001');
+    $updater->SetProxyUrl('flko.sofa1labs.at');
+    $updater->SetRequiredWpVersion('5.7.0');
+    $updater->SetTestedWpVersion('5.7.2');
+    $updater->Init();
+}
+
 // This theme requires WordPress 5.3 or later.
 if ( version_compare( $GLOBALS['wp_version'], '5.3', '<' ) ) {
 	require get_template_directory() . '/inc/back-compat.php';

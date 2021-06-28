@@ -218,7 +218,7 @@ class Sofa1WPThemeUpdater
     {
         global $wp_filesystem;
 
-        $install_directory = plugin_dir_path($this->_callFilePath);
+        $install_directory = get_template_directory();
         $wp_filesystem->move($result['destination'], $install_directory);
         $result['destination'] = $install_directory;
 

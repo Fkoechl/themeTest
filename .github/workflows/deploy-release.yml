@@ -1,0 +1,29 @@
+name: 'Deploy Release'
+on:
+  release:
+    branches:
+      - master
+      - main
+    types: [published]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+      - name: Create Release Folder
+        run: rsync -arv --exclude='.git' --exclude='.github' --exclude='.idea' --exclude='.gitignore' . ./${{ secrets.THEME_NAME }}
+      - name: Zip Folder
+        uses: papeloto/action-zip@master
+        with:
+          files: ${{ secrets.THEME_NAME }}
+          recursive: false
+          dest: result.zip
+      - name: Upload Zip
+        uses: bayssmekanique/action-simple-file-upload@v1
+        with:
+          host: ${{ secrets.FTP_SERVER }}
+          user: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          src: /result.zip
+          dest: files/themes/${{ secrets.THEME_NAME }}/${{ github.event.release.tag_name }}.zip
